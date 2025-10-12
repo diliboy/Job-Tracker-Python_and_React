@@ -1,0 +1,87 @@
+# ==================== BACKEND ====================
+
+# Python
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.py[cod]
+backend/**/*$py.class
+*.so
+.Python
+
+# Virtual Environment
+backend/venv/
+backend/env/
+backend/ENV/
+
+# Environment variables
+backend/.env
+backend/.env.local
+
+# Database
+backend/*.db
+backend/*.sqlite
+backend/*.sqlite3
+backend/job_tracker.db
+
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Python specific
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/*.log
+
+# ==================== FRONTEND ====================
+
+# Dependencies
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+
+# Testing
+frontend/coverage/
+
+# Production build
+frontend/build/
+frontend/dist/
+
+# Environment variables
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# ==================== IDEs & OS ====================
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# IntelliJ
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ==================== Other ====================
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
