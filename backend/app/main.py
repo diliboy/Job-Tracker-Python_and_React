@@ -81,11 +81,11 @@ async def root():
     }
 
 
-# Import and include routers here (we'll add these later)
+# Import and include routers
 # Similar to @ComponentScan in Spring Boot
-# from app.api.v1 import auth, jobs, users
-from app.api.v1 import auth
+from app.api.v1 import auth, jobs
 
+# Register routers
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
-# app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["Jobs"])
-# app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
+app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["Job Applications"])
+# app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])  # Coming soon
