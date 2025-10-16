@@ -32,15 +32,21 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     full_name = Column(String, nullable=True)
     hashed_password = Column(String, nullable=False)
+    
+    # Status
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
+    
     # Timestamps - similar to @CreatedDate and @LastModifiedDate in Spring
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships - similar to @OneToMany in JPA
-    # We'll add this later when we create JobApplication model
-    # job_applications = relationship("JobApplication", back_populates="user")
+    # PYTHON NOTES:
+    # relationship() creates ORM relationship
+    # back_populates connects to JobApplication.user
+    # cascade="all, delete-orphan" means if user is deleted, delete their job applications
+    job_applications = relationship("JobApplication", back_populates="user", cascade="all, delete-orphan")
     
     def __repr__(self):
         """String representation - similar to toString() in Java"""
