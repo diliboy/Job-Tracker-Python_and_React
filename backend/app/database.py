@@ -60,5 +60,5 @@ def init_db():
     
     In production, you should use Alembic migrations instead.
     """
-    from app.models import user, job_application
+    from app.models import user, job_application, documents 
     Base.metadata.create_all(bind=engine)

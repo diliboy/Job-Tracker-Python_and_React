@@ -107,8 +107,12 @@ class JobApplication(Base):
     # In Java: @ManyToOne private User user;
     user = relationship("User", back_populates="job_applications")
     
-    # Relationship to Documents (we'll add this later)
-    # documents = relationship("Document", back_populates="job_application", cascade="all, delete-orphan")
+    # Relationship to Documents
+    # PYTHON NOTES:
+    # cascade="all, delete-orphan" means:
+    # - When job is deleted, delete its documents
+    # - Like @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    documents = relationship("Document", back_populates="job_application", cascade="all, delete-orphan")
     
     def __repr__(self):
         """String representation"""

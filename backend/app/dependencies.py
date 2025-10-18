@@ -8,7 +8,7 @@ PYTHON LEARNING NOTES:
 - These are used in route parameters with Depends()
 """
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from typing import Generator
 
@@ -17,13 +17,12 @@ from app.models.user import User
 from app.services.auth_service import AuthService
 
 
-# OAuth2 scheme for JWT token
-# This tells FastAPI where to look for the token
+# HTTPBearer scheme for JWT token
+# This tells FastAPI to look for "Authorization: Bearer <token>" header
 # PYTHON NOTES:
-# OAuth2PasswordBearer(tokenUrl="...") creates a dependency
-# tokenUrl is the login endpoint that returns the token
-# This adds "Authorize" button in Swagger UI automatically
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+# HTTPBearer() creates a simple bearer token scheme
+# User just pastes token in Swagger UI, no username/password needed
+security = HTTPBearer()
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -58,7 +57,7 @@ def get_db() -> Generator[Session, None, None]:
 
 def get_current_user(
     db: Session = Depends(get_db),
-    token: str = Depends(oauth2_scheme)
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ) -> User:
     """
     Dependency to get current authenticated user.
@@ -72,12 +71,12 @@ def get_current_user(
     PYTHON NOTES:
     - This is a dependency that depends on other dependencies
     - get_db provides database session
-    - oauth2_scheme extracts token from Authorization header
+    - security extracts token from Authorization header
     - FastAPI calls this automatically for protected routes
     
     Args:
         db: Database session (injected by FastAPI)
-        token: JWT token from Authorization header (injected by FastAPI)
+        credentials: Bearer token from Authorization header (injected by FastAPI)
     
     Returns:
         Current authenticated User
@@ -92,6 +91,9 @@ def get_current_user(
         return current_user
     """
     auth_service = AuthService()
+    
+    # Extract token from credentials
+    token = credentials.credentials
     
     try:
         user = auth_service.get_current_user(db, token)
@@ -119,7 +121,7 @@ def get_current_active_user(
     PYTHON NOTES:
     - This dependency depends on get_current_user
     - Adds extra check to ensure user is active
-    - Dependency chain: oauth2_scheme -> get_db -> get_current_user -> get_current_active_user
+    - Dependency chain: security -> get_db -> get_current_user -> get_current_active_user
     
     Args:
         current_user: Current user (injected by get_current_user dependency)
@@ -194,8 +196,8 @@ def get_profile(
 ):
     # FastAPI automatically:
     # 1. Calls get_db() -> provides db session
-    # 2. Calls oauth2_scheme -> extracts token from header
-    # 3. Calls get_current_user(db, token) -> provides user
+    # 2. Calls security -> extracts token from Authorization: Bearer <token> header
+    # 3. Calls get_current_user(db, credentials) -> provides user
     # 4. Calls your function with db and current_user
     # 5. Closes db session after function completes
     
@@ -206,6 +208,12 @@ Spring Boot equivalent:
 public Map<String, String> getProfile(@AuthenticationPrincipal User currentUser) {
     return Map.of("user", currentUser.getEmail());
 }
+
+In Swagger UI:
+- Click "Authorize" button (lock icon)
+- Paste your JWT token (without "Bearer " prefix)
+- Click "Authorize"
+- All protected endpoints will now include the token automatically
 
 KEY DIFFERENCES:
 - Spring: Uses annotations and reflection (@Autowired)
