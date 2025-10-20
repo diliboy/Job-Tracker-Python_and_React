@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
 import Layout from '../components/Layout';
 import { jobsApi } from '../services/api';
-import type { JobApplicationCreate, ApplicationStatus } from '../types';
+import type { JobApplicationCreate } from '../types';
 
 export default function JobForm() {
   const navigate = useNavigate();

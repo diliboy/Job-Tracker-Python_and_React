@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: job-tracker-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./job_tracker.db
+      - SECRET_KEY=your-production-secret-key-change-this
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/job_tracker.db:/app/job_tracker.db
+    restart: unless-stopped
+
+  frontend:
+    build: 
+      context: ./frontend
+      args:
+        - VITE_API_URL=http://localhost:8000/api/v1
+    container_name: job-tracker-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

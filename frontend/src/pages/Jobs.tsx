@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Building2, MapPin, Calendar, Edit, Trash2, Eye, Search, Filter } from 'lucide-react';
+import { Building2, MapPin, Calendar, Edit, Trash2, Eye, Search } from 'lucide-react';
 import Layout from '../components/Layout';
 import { jobsApi } from '../services/api';
-import type { JobApplication, ApplicationStatus, JobApplicationListResponse } from '../types';
+import type { ApplicationStatus, JobApplicationListResponse } from '../types';
 
 const statusOptions: { value: ApplicationStatus | ''; label: string }[] = [
   { value: '', label: 'All Statuses' },

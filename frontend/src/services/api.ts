@@ -15,8 +15,8 @@ import type {
   DocumentType,
 } from '../types';
 
-// Base API URL
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+// Base API URL - use environment variable in production
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 // Create axios instance
 const api = axios.create({

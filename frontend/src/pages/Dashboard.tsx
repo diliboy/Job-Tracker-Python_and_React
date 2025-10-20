@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, Clock, CheckCircle, XCircle, MinusCircle } from 'lucide-react';
+import { Briefcase, Clock, CheckCircle, XCircle } from 'lucide-react';
 import Layout from '../components/Layout';
 import StatsCard from '../components/StatsCard';
 import RecentJobs from '../components/RecentJobs';

@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import {
   ArrowLeft,
-  Building2,
   MapPin,
   Calendar,
   DollarSign,
