@@ -1,6 +1,6 @@
 # 📋 Job Application Tracker
 
-### A full-stack web application designed to help job seekers manage and track their job applications efficiently. This project was built as a learning initiative to master Python and FastAPI while transitioning from Java/Spring Boot development, demonstrating practical application of modern web development technologies and best practices.
+### A full-stack web application designed to help job seekers manage and track their job applications efficiently. This project was built as a learning initiative to master Python and FastAPI with the help of web, while transitioning from Java/Spring Boot development, demonstrating practical application of modern web development technologies and best practices.
 
 ## 📸 Screenshots
 
@@ -8,7 +8,7 @@
 ![Dashboard Screenshot](docs/screenshots/dashboard.png)
 
 ### Job Applications List
-![Jobs List Screenshot](docs/screenshots/jobs-list.png)
+![Jobs List Screenshot](docs/screenshots/Jobs-list.png)
 
 ### Job Details with File Upload
 ![Job Details Screenshot](docs/screenshots/job-details.png)
