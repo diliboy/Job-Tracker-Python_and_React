@@ -1,11 +1,3 @@
-"""
-Custom exceptions for the application.
-Similar to custom exceptions in Spring Boot.
-
-In Spring Boot:
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class NotFoundException extends RuntimeException { }
-"""
 from fastapi import HTTPException, status
 
 

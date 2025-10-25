@@ -1,12 +1,3 @@
-"""
-File Service - Handles file upload/download/deletion.
-Similar to file storage services in Spring Boot.
-
-PYTHON LEARNING NOTES:
-- File I/O operations
-- UUID for unique filenames
-- Path manipulation with pathlib
-"""
 import os
 import uuid
 from pathlib import Path
@@ -17,20 +8,6 @@ from app.core.exceptions import BadRequestException
 
 
 class FileService:
-    """
-    Service for file operations.
-    
-    Spring Boot equivalent:
-    @Service
-    public class FileStorageService {
-        private final Path fileStorageLocation;
-        // ... file operations
-    }
-    
-    PYTHON NOTES:
-    - pathlib.Path is better than string paths
-    - Like java.nio.file.Path in Java
-    """
     
     # Allowed file types and extensions
     ALLOWED_EXTENSIONS = {'.pdf', '.doc', '.docx', '.txt'}
@@ -42,13 +19,7 @@ class FileService:
     }
     
     def __init__(self):
-        """
-        Initialize file service.
         
-        PYTHON NOTES:
-        - Create upload directory if it doesn't exist
-        - Path(settings.upload_dir) converts string to Path object
-        """
         self.upload_dir = Path(settings.upload_dir)
         self.upload_dir.mkdir(parents=True, exist_ok=True)
     
@@ -56,23 +27,6 @@ class FileService:
         """
         Validate uploaded file.
         
-        Spring Boot equivalent:
-        private void validateFile(MultipartFile file) {
-            if (file.isEmpty()) {
-                throw new BadRequestException("File is empty");
-            }
-            // ... validate extension and size
-        }
-        
-        PYTHON NOTES:
-        - Checks file type, extension, and size
-        - Raises exception if validation fails
-        
-        Args:
-            file: Uploaded file
-        
-        Raises:
-            BadRequestException: If file is invalid
         """
         # Check if file is empty
         if not file.filename:
@@ -98,23 +52,6 @@ class FileService:
         """
         Generate unique filename to prevent overwrites.
         
-        Spring Boot equivalent:
-        private String generateUniqueFilename(String originalFilename) {
-            String extension = FilenameUtils.getExtension(originalFilename);
-            return UUID.randomUUID().toString() + "." + extension;
-        }
-        
-        PYTHON NOTES:
-        - uuid.uuid4() generates random UUID (like UUID.randomUUID() in Java)
-        - str(uuid) converts UUID to string
-        - Path().stem gets filename without extension
-        - Path().suffix gets extension with dot
-        
-        Args:
-            original_filename: Original uploaded filename
-        
-        Returns:
-            Unique filename with UUID prefix
         """
         file_path = Path(original_filename)
         file_ext = file_path.suffix
@@ -133,30 +70,6 @@ class FileService:
         """
         Save uploaded file to disk.
         
-        Spring Boot equivalent:
-        public FileInfo saveFile(MultipartFile file, Long userId, Long jobId) 
-            throws IOException {
-            // validate file
-            // create directory structure
-            // save file
-            // return file info
-        }
-        
-        PYTHON NOTES:
-        - async/await for non-blocking I/O
-        - Tuple[str, str, int] return type means returns 3 values
-        - Like returning an object with 3 fields
-        
-        Args:
-            file: Uploaded file
-            user_id: User ID
-            job_id: Job application ID
-        
-        Returns:
-            Tuple of (filepath, filename, file_size)
-        
-        Raises:
-            BadRequestException: If file is invalid
         """
         # Validate file
         self._validate_file(file)
@@ -203,21 +116,6 @@ class FileService:
         """
         Delete file from disk.
         
-        Spring Boot equivalent:
-        public boolean deleteFile(String filepath) {
-            Path file = Paths.get(uploadDir, filepath);
-            return Files.deleteIfExists(file);
-        }
-        
-        PYTHON NOTES:
-        - Path.unlink() deletes file (like Files.delete() in Java)
-        - Returns True if deleted, False if not found
-        
-        Args:
-            filepath: Relative path to file
-        
-        Returns:
-            True if deleted, False if file not found
         """
         try:
             file_path = self.upload_dir / filepath
@@ -233,18 +131,6 @@ class FileService:
         """
         Get absolute file path.
         
-        PYTHON NOTES:
-        - Converts relative path to absolute path
-        - Used when serving file downloads
-        
-        Args:
-            filepath: Relative path to file
-        
-        Returns:
-            Absolute Path object
-        
-        Raises:
-            BadRequestException: If file doesn't exist
         """
         file_path = self.upload_dir / filepath
         
@@ -252,45 +138,3 @@ class FileService:
             raise BadRequestException("File not found")
         
         return file_path
-
-
-# PYTHON NOTES - File Operations:
-"""
-File I/O in Python:
-
-1. Read file:
-with open(filepath, "rb") as f:
-    contents = f.read()
-
-2. Write file:
-with open(filepath, "wb") as f:
-    f.write(contents)
-
-3. Delete file:
-Path(filepath).unlink()
-
-4. Check if exists:
-Path(filepath).exists()
-
-5. Create directory:
-Path(dirpath).mkdir(parents=True, exist_ok=True)
-
-Spring Boot equivalent:
-1. Read: Files.readAllBytes(Paths.get(filepath))
-2. Write: Files.write(Paths.get(filepath), contents)
-3. Delete: Files.deleteIfExists(Paths.get(filepath))
-4. Exists: Files.exists(Paths.get(filepath))
-5. Create dir: Files.createDirectories(Paths.get(dirpath))
-
-Very similar patterns!
-
-Context Manager (with statement):
-with open(file) as f:
-    # use file
-
-Automatically closes file when done.
-Like try-with-resources in Java:
-try (FileInputStream fis = new FileInputStream(file)) {
-    // use file
-}
-"""

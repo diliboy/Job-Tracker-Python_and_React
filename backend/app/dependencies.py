@@ -1,12 +1,3 @@
-"""
-Dependencies for FastAPI dependency injection.
-Similar to @Bean providers in Spring Boot.
-
-PYTHON LEARNING NOTES:
-- FastAPI has built-in dependency injection (like Spring's @Autowired)
-- We define functions that FastAPI will call automatically
-- These are used in route parameters with Depends()
-"""
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -26,28 +17,7 @@ security = HTTPBearer()
 
 
 def get_db() -> Generator[Session, None, None]:
-    """
-    Dependency to get database session.
-    
-    Spring Boot equivalent:
-    @Bean
-    public EntityManager entityManager() {
-        return entityManagerFactory.createEntityManager();
-    }
-    
-    PYTHON NOTES:
-    - Generator is like an iterator in Java
-    - yield is like return, but function can continue after
-    - finally block always runs (like try-finally in Java)
-    - This ensures database connection is closed after request
-    
-    Usage in route:
-    @router.get("/users")
-    def get_users(db: Session = Depends(get_db)):
-        # db is automatically provided by FastAPI
-        users = db.query(User).all()
-        return users
-    """
+
     db = SessionLocal()
     try:
         yield db  # Provide the database session
@@ -59,37 +29,7 @@ def get_current_user(
     db: Session = Depends(get_db),
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ) -> User:
-    """
-    Dependency to get current authenticated user.
-    
-    Spring Boot equivalent:
-    @GetMapping("/protected")
-    public ResponseEntity<?> protectedRoute(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(user);
-    }
-    
-    PYTHON NOTES:
-    - This is a dependency that depends on other dependencies
-    - get_db provides database session
-    - security extracts token from Authorization header
-    - FastAPI calls this automatically for protected routes
-    
-    Args:
-        db: Database session (injected by FastAPI)
-        credentials: Bearer token from Authorization header (injected by FastAPI)
-    
-    Returns:
-        Current authenticated User
-    
-    Raises:
-        HTTPException 401: If token is invalid or user not found
-    
-    Usage in route:
-    @router.get("/me")
-    def get_profile(current_user: User = Depends(get_current_user)):
-        # current_user is automatically provided
-        return current_user
-    """
+
     auth_service = AuthService()
     
     # Extract token from credentials
@@ -112,32 +52,7 @@ def get_current_user(
 def get_current_active_user(
     current_user: User = Depends(get_current_user)
 ) -> User:
-    """
-    Dependency to get current active user only.
-    
-    Spring Boot equivalent:
-    @PreAuthorize("hasAuthority('ACTIVE')")
-    
-    PYTHON NOTES:
-    - This dependency depends on get_current_user
-    - Adds extra check to ensure user is active
-    - Dependency chain: security -> get_db -> get_current_user -> get_current_active_user
-    
-    Args:
-        current_user: Current user (injected by get_current_user dependency)
-    
-    Returns:
-        Current active User
-    
-    Raises:
-        HTTPException 400: If user is inactive
-    
-    Usage in route:
-    @router.get("/profile")
-    def get_profile(user: User = Depends(get_current_active_user)):
-        # Only active users can access this
-        return user
-    """
+ 
     if not current_user.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -149,74 +64,10 @@ def get_current_active_user(
 def get_current_superuser(
     current_user: User = Depends(get_current_user)
 ) -> User:
-    """
-    Dependency to get current superuser (admin) only.
-    
-    Spring Boot equivalent:
-    @PreAuthorize("hasRole('ADMIN')")
-    
-    PYTHON NOTES:
-    - Only allows superusers (admins) to access route
-    - Useful for admin-only endpoints
-    
-    Args:
-        current_user: Current user (injected)
-    
-    Returns:
-        Current superuser
-    
-    Raises:
-        HTTPException 403: If user is not superuser
-    
-    Usage in route:
-    @router.delete("/users/{id}")
-    def delete_user(
-        user_id: int,
-        admin: User = Depends(get_current_superuser)
-    ):
-        # Only admins can delete users
-        pass
-    """
+
     if not current_user.is_superuser:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not enough permissions"
         )
     return current_user
-
-
-# PYTHON NOTES - How FastAPI Dependency Injection Works:
-"""
-Example route with dependencies:
-
-@router.get("/profile")
-def get_profile(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    # FastAPI automatically:
-    # 1. Calls get_db() -> provides db session
-    # 2. Calls security -> extracts token from Authorization: Bearer <token> header
-    # 3. Calls get_current_user(db, credentials) -> provides user
-    # 4. Calls your function with db and current_user
-    # 5. Closes db session after function completes
-    
-    return {"user": current_user.email}
-
-Spring Boot equivalent:
-@GetMapping("/profile")
-public Map<String, String> getProfile(@AuthenticationPrincipal User currentUser) {
-    return Map.of("user", currentUser.getEmail());
-}
-
-In Swagger UI:
-- Click "Authorize" button (lock icon)
-- Paste your JWT token (without "Bearer " prefix)
-- Click "Authorize"
-- All protected endpoints will now include the token automatically
-
-KEY DIFFERENCES:
-- Spring: Uses annotations and reflection (@Autowired)
-- FastAPI: Uses function parameters and type hints (Depends())
-- Both achieve the same result: automatic dependency injection!
-"""

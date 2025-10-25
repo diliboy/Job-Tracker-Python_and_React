@@ -1,7 +1,3 @@
-"""
-Configuration settings for the application.
-Similar to application.properties in Spring Boot but using Pydantic.
-"""
 from pydantic_settings import BaseSettings
 from typing import List
 from functools import lru_cache
@@ -67,8 +63,7 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """
     Get cached settings instance.
-    Similar to @Bean in Spring Boot - creates a singleton.
-    The @lru_cache decorator ensures we only create one instance.
+    
     """
     return Settings()
 

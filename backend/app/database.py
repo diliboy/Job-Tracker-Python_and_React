@@ -1,7 +1,3 @@
-"""
-Database configuration and session management.
-Similar to DataSource and EntityManagerFactory in Spring Boot.
-"""
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
@@ -32,20 +28,7 @@ Base = declarative_base()
 
 
 def get_db() -> Generator[Session, None, None]:
-    """
-    Dependency function to get database session.
-    Similar to @PersistenceContext EntityManager in Spring.
     
-    Usage in FastAPI:
-    @router.get("/items")
-    def get_items(db: Session = Depends(get_db)):
-        # use db here
-    
-    This ensures:
-    1. A new session is created for each request
-    2. Session is automatically closed after request
-    3. Similar to @Transactional in Spring
-    """
     db = SessionLocal()
     try:
         yield db
@@ -54,11 +37,6 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def init_db():
-    """
-    Initialize database - create all tables.
-    Similar to Hibernate's ddl-auto=create in Spring Boot.
     
-    In production, you should use Alembic migrations instead.
-    """
     from app.models import user, job_application, documents 
     Base.metadata.create_all(bind=engine)

@@ -1,12 +1,3 @@
-"""
-Job Application Repository - Data Access Layer.
-Similar to @Repository in Spring Boot.
-
-PYTHON LEARNING NOTES:
-- Query building with filters
-- Pagination with offset and limit
-- Aggregation queries for statistics
-"""
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 from typing import Optional, List, Dict
@@ -15,28 +6,9 @@ from app.schemas.job_application import JobApplicationCreate, JobApplicationUpda
 
 
 class JobApplicationRepository:
-    """
-    Repository for Job Application database operations.
-    
-    Spring Boot equivalent:
-    @Repository
-    public interface JobApplicationRepository extends JpaRepository<JobApplication, Long> {
-        List<JobApplication> findByUserId(Long userId);
-        // ... custom queries
-    }
-    """
     
     def create(self, db: Session, job_create: JobApplicationCreate, user_id: int) -> JobApplication:
-        """
-        Create new job application.
         
-        Spring Boot equivalent:
-        public JobApplication save(JobApplicationCreateDTO dto, Long userId)
-        
-        PYTHON NOTES:
-        - **job_create.model_dump() unpacks Pydantic model to dict
-        - user_id=user_id adds the user relationship
-        """
         db_job = JobApplication(
             **job_create.model_dump(),
             user_id=user_id
@@ -49,16 +21,7 @@ class JobApplicationRepository:
         return db_job
     
     def get_by_id(self, db: Session, job_id: int, user_id: int) -> Optional[JobApplication]:
-        """
-        Get job application by ID for specific user.
         
-        Spring Boot equivalent:
-        Optional<JobApplication> findByIdAndUserId(Long id, Long userId);
-        
-        PYTHON NOTES:
-        - .filter() adds multiple WHERE conditions
-        - Chaining filters is like AND in SQL
-        """
         return db.query(JobApplication).filter(
             JobApplication.id == job_id,
             JobApplication.user_id == user_id
@@ -73,23 +36,7 @@ class JobApplicationRepository:
         status: Optional[ApplicationStatus] = None,
         company: Optional[str] = None
     ) -> List[JobApplication]:
-        """
-        Get all job applications for user with filters and pagination.
-        
-        Spring Boot equivalent:
-        @Query("SELECT j FROM JobApplication j WHERE j.userId = :userId ...")
-        Page<JobApplication> findByUserIdWithFilters(
-            Long userId, 
-            ApplicationStatus status,
-            String company,
-            Pageable pageable
-        );
-        
-        PYTHON NOTES:
-        - Build query dynamically based on provided filters
-        - .order_by(desc(...)) sorts descending (newest first)
-        - .offset() and .limit() for pagination
-        """
+    
         query = db.query(JobApplication).filter(JobApplication.user_id == user_id)
         
         # Add optional filters
@@ -120,17 +67,7 @@ class JobApplicationRepository:
         status: Optional[ApplicationStatus] = None,
         company: Optional[str] = None
     ) -> int:
-        """
-        Count total applications for user with filters.
-        
-        Spring Boot equivalent:
-        @Query("SELECT COUNT(j) FROM JobApplication j WHERE j.userId = :userId ...")
-        long countByUserIdWithFilters(Long userId, ...);
-        
-        PYTHON NOTES:
-        - .count() returns total count
-        - Used for pagination (total pages calculation)
-        """
+       
         query = db.query(JobApplication).filter(JobApplication.user_id == user_id)
         
         if status:
@@ -148,16 +85,7 @@ class JobApplicationRepository:
         user_id: int,
         job_update: JobApplicationUpdate
     ) -> Optional[JobApplication]:
-        """
-        Update job application.
         
-        Spring Boot equivalent:
-        public JobApplication update(Long id, Long userId, JobApplicationUpdateDTO dto)
-        
-        PYTHON NOTES:
-        - exclude_unset=True only includes fields that were set in request
-        - If field not provided, it's not in the dict and won't be updated
-        """
         db_job = self.get_by_id(db, job_id, user_id)
         if not db_job:
             return None
@@ -175,12 +103,7 @@ class JobApplicationRepository:
         return db_job
     
     def delete(self, db: Session, job_id: int, user_id: int) -> bool:
-        """
-        Delete job application.
         
-        Spring Boot equivalent:
-        public boolean deleteByIdAndUserId(Long id, Long userId)
-        """
         db_job = self.get_by_id(db, job_id, user_id)
         if not db_job:
             return False
@@ -191,19 +114,7 @@ class JobApplicationRepository:
         return True
     
     def get_statistics(self, db: Session, user_id: int) -> Dict[str, int]:
-        """
-        Get application statistics by status.
         
-        Spring Boot equivalent:
-        @Query("SELECT j.status, COUNT(j) FROM JobApplication j WHERE j.userId = :userId GROUP BY j.status")
-        List<Object[]> getStatisticsByUserId(Long userId);
-        
-        PYTHON NOTES:
-        - func.count() is SQL COUNT() function
-        - .group_by() groups results
-        - Returns list of tuples: [(status, count), ...]
-        - We convert to dict for easier use
-        """
         # Query to count applications by status
         # SQL: SELECT status, COUNT(*) FROM job_applications WHERE user_id = ? GROUP BY status
         results = db.query(
@@ -232,59 +143,9 @@ class JobApplicationRepository:
         return stats
     
     def get_recent(self, db: Session, user_id: int, limit: int = 5) -> List[JobApplication]:
-        """
-        Get recent job applications.
         
-        Spring Boot equivalent:
-        @Query("SELECT j FROM JobApplication j WHERE j.userId = :userId ORDER BY j.createdAt DESC")
-        List<JobApplication> findRecentByUserId(Long userId, Pageable pageable);
-        
-        PYTHON NOTES:
-        - Order by created_at descending (newest first)
-        - Limit to specified number
-        """
         return db.query(JobApplication).filter(
             JobApplication.user_id == user_id
         ).order_by(
             desc(JobApplication.created_at)
         ).limit(limit).all()
-
-
-# PYTHON NOTES - Query Examples:
-"""
-# Simple query:
-jobs = db.query(JobApplication).filter(JobApplication.user_id == 1).all()
-# SQL: SELECT * FROM job_applications WHERE user_id = 1
-
-# Multiple filters (AND):
-jobs = db.query(JobApplication).filter(
-    JobApplication.user_id == 1,
-    JobApplication.status == 'applied'
-).all()
-# SQL: SELECT * FROM job_applications WHERE user_id = 1 AND status = 'applied'
-
-# LIKE query:
-jobs = db.query(JobApplication).filter(
-    JobApplication.company_name.ilike('%google%')
-).all()
-# SQL: SELECT * FROM job_applications WHERE company_name ILIKE '%google%'
-
-# Ordering:
-jobs = db.query(JobApplication).order_by(desc(JobApplication.created_at)).all()
-# SQL: SELECT * FROM job_applications ORDER BY created_at DESC
-
-# Pagination:
-jobs = db.query(JobApplication).offset(10).limit(10).all()
-# SQL: SELECT * FROM job_applications OFFSET 10 LIMIT 10
-
-# Count:
-count = db.query(JobApplication).filter(JobApplication.user_id == 1).count()
-# SQL: SELECT COUNT(*) FROM job_applications WHERE user_id = 1
-
-# Aggregation:
-result = db.query(
-    JobApplication.status,
-    func.count(JobApplication.id)
-).group_by(JobApplication.status).all()
-# SQL: SELECT status, COUNT(id) FROM job_applications GROUP BY status
-"""

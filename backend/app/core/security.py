@@ -1,15 +1,10 @@
-"""
-Security utilities - Password hashing and JWT tokens.
-Similar to PasswordEncoder and JwtTokenProvider in Spring Security.
-"""
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from app.config import settings
 
-# Password hashing context
-# Similar to BCryptPasswordEncoder in Spring Security
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -17,8 +12,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     Verify a plain password against a hashed password.
     
-    Similar to:
-    passwordEncoder.matches(rawPassword, encodedPassword) in Spring
     """
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -27,8 +20,6 @@ def get_password_hash(password: str) -> str:
     """
     Hash a password.
     
-    Similar to:
-    passwordEncoder.encode(rawPassword) in Spring
     """
     return pwd_context.hash(password)
 
@@ -37,14 +28,6 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     """
     Create a JWT access token.
     
-    Similar to JwtTokenProvider.generateToken() in Spring Security.
-    
-    Args:
-        data: Dictionary containing user data (email, user_id, etc.)
-        expires_delta: Optional expiration time delta
-    
-    Returns:
-        JWT token string
     """
     to_encode = data.copy()
     
@@ -69,14 +52,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 def decode_access_token(token: str) -> Optional[dict]:
     """
     Decode and verify JWT token.
-    
-    Similar to JwtTokenProvider.validateToken() in Spring Security.
-    
-    Args:
-        token: JWT token string
-    
-    Returns:
-        Decoded token payload or None if invalid
+
     """
     try:
         payload = jwt.decode(

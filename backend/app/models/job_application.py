@@ -1,12 +1,3 @@
-"""
-Job Application model - Database entity.
-Similar to @Entity class in JPA/Hibernate.
-
-PYTHON LEARNING NOTES:
-- Enum is like enum in Java
-- ForeignKey creates relationship between tables
-- relationship() is like @ManyToOne / @OneToMany in JPA
-"""
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -21,14 +12,6 @@ class ApplicationStatus(str, Enum):
     """
     Job application status enum.
     
-    Java equivalent:
-    public enum ApplicationStatus {
-        APPLIED, INTERVIEW, OFFER, REJECTED, WITHDRAWN
-    }
-    
-    PYTHON NOTES:
-    - str, Enum means it's a string-based enum
-    - Values can be used as strings in JSON
     """
     APPLIED = "applied"
     INTERVIEW = "interview"
@@ -38,24 +21,7 @@ class ApplicationStatus(str, Enum):
 
 
 class JobApplication(Base):
-    """
-    Job Application entity.
-    
-    Spring Boot equivalent:
-    @Entity
-    @Table(name="job_applications")
-    public class JobApplication {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
-        
-        @ManyToOne
-        @JoinColumn(name = "user_id")
-        private User user;
-        
-        // ... other fields
-    }
-    """
+
     __tablename__ = "job_applications"
     
     # Primary key
@@ -117,23 +83,3 @@ class JobApplication(Base):
     def __repr__(self):
         """String representation"""
         return f"<JobApplication(id={self.id}, company={self.company_name}, title={self.job_title}, status={self.status})>"
-
-
-# PYTHON NOTES - Enum Usage:
-"""
-# In code, you can use:
-status = ApplicationStatus.APPLIED
-print(status)  # Output: ApplicationStatus.APPLIED
-print(status.value)  # Output: "applied"
-
-# In database, stored as string: "applied", "interview", etc.
-
-# Comparison:
-if job.status == ApplicationStatus.APPLIED:
-    print("Job was just applied")
-
-# Java equivalent:
-if (job.getStatus() == ApplicationStatus.APPLIED) {
-    System.out.println("Job was just applied");
-}
-"""

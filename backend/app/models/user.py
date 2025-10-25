@@ -1,7 +1,3 @@
-"""
-User model - Database entity.
-Similar to @Entity class in JPA/Hibernate.
-"""
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -9,19 +5,7 @@ from app.database import Base
 
 
 class User(Base):
-    """
-    User entity for authentication.
     
-    In Spring Boot, this would be:
-    @Entity
-    @Table(name="users")
-    public class User {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
-        ...
-    }
-    """
     __tablename__ = "users"
     
     # Primary key - similar to @Id @GeneratedValue in JPA

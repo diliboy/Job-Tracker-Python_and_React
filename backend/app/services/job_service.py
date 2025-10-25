@@ -1,12 +1,3 @@
-"""
-Job Application Service - Business Logic Layer.
-Similar to @Service class in Spring Boot.
-
-PYTHON LEARNING NOTES:
-- Service layer handles business logic
-- Coordinates between controller and repository
-- Can call multiple repositories if needed
-"""
 from sqlalchemy.orm import Session
 from typing import Optional, List, Dict
 from math import ceil
@@ -24,20 +15,6 @@ from app.core.exceptions import NotFoundException, ForbiddenException
 
 
 class JobApplicationService:
-    """
-    Job Application service handling business logic.
-    
-    Spring Boot equivalent:
-    @Service
-    public class JobApplicationService {
-        @Autowired
-        private JobApplicationRepository jobRepository;
-    }
-    
-    PYTHON NOTES:
-    - __init__ initializes dependencies
-    - Methods contain business logic and validation
-    """
     
     def __init__(self):
         """Initialize repository"""
@@ -49,30 +26,7 @@ class JobApplicationService:
         job_create: JobApplicationCreate,
         user_id: int
     ) -> JobApplicationResponse:
-        """
-        Create new job application.
         
-        Spring Boot equivalent:
-        public JobApplicationResponse createApplication(
-            JobApplicationCreateDTO dto,
-            Long userId
-        ) {
-            JobApplication job = jobRepository.save(dto, userId);
-            return JobApplicationResponse.from(job);
-        }
-        
-        PYTHON NOTES:
-        - Takes user_id from JWT token (provided by controller)
-        - Returns Pydantic model (automatically converted to JSON)
-        
-        Args:
-            db: Database session
-            job_create: Job application data
-            user_id: Current user's ID (from JWT)
-        
-        Returns:
-            JobApplicationResponse with created job data
-        """
         job = self.job_repo.create(db, job_create, user_id)
         return JobApplicationResponse.model_validate(job)
     
@@ -82,31 +36,7 @@ class JobApplicationService:
         job_id: int,
         user_id: int
     ) -> JobApplicationResponse:
-        """
-        Get job application by ID.
         
-        Spring Boot equivalent:
-        public JobApplicationResponse getApplication(Long jobId, Long userId) {
-            return jobRepository.findByIdAndUserId(jobId, userId)
-                .map(JobApplicationResponse::from)
-                .orElseThrow(() -> new NotFoundException());
-        }
-        
-        PYTHON NOTES:
-        - Raises NotFoundException if not found (returns 404 automatically)
-        - Ensures user can only access their own applications
-        
-        Args:
-            db: Database session
-            job_id: Job application ID
-            user_id: Current user's ID
-        
-        Returns:
-            JobApplicationResponse
-        
-        Raises:
-            NotFoundException: If job not found or doesn't belong to user
-        """
         job = self.job_repo.get_by_id(db, job_id, user_id)
         
         if not job:
@@ -123,36 +53,7 @@ class JobApplicationService:
         status: Optional[ApplicationStatus] = None,
         company: Optional[str] = None
     ) -> JobApplicationListResponse:
-        """
-        Get all job applications with pagination and filters.
-        
-        Spring Boot equivalent:
-        public Page<JobApplicationResponse> getAllApplications(
-            Long userId,
-            Pageable pageable,
-            ApplicationStatus status,
-            String company
-        ) {
-            Page<JobApplication> jobs = jobRepository.findByUserIdWithFilters(...);
-            return jobs.map(JobApplicationResponse::from);
-        }
-        
-        PYTHON NOTES:
-        - page starts at 1 (not 0 like Spring Boot)
-        - skip = (page - 1) * size calculates offset
-        - Returns custom pagination response
-        
-        Args:
-            db: Database session
-            user_id: Current user's ID
-            page: Page number (starts at 1)
-            size: Items per page
-            status: Optional status filter
-            company: Optional company name filter
-        
-        Returns:
-            JobApplicationListResponse with items and pagination info
-        """
+    
         # Calculate skip (offset)
         # PYTHON NOTES:
         # If page=1, size=10: skip=0
@@ -199,33 +100,7 @@ class JobApplicationService:
         job_update: JobApplicationUpdate,
         user_id: int
     ) -> JobApplicationResponse:
-        """
-        Update job application.
         
-        Spring Boot equivalent:
-        public JobApplicationResponse updateApplication(
-            Long jobId,
-            JobApplicationUpdateDTO dto,
-            Long userId
-        ) {
-            JobApplication job = jobRepository.findByIdAndUserId(jobId, userId)
-                .orElseThrow(() -> new NotFoundException());
-            // update fields...
-            return JobApplicationResponse.from(jobRepository.save(job));
-        }
-        
-        Args:
-            db: Database session
-            job_id: Job application ID
-            job_update: Update data
-            user_id: Current user's ID
-        
-        Returns:
-            JobApplicationResponse with updated data
-        
-        Raises:
-            NotFoundException: If job not found
-        """
         job = self.job_repo.update(db, job_id, user_id, job_update)
         
         if not job:
@@ -239,28 +114,7 @@ class JobApplicationService:
         job_id: int,
         user_id: int
     ) -> Dict[str, str]:
-        """
-        Delete job application.
         
-        Spring Boot equivalent:
-        public Map<String, String> deleteApplication(Long jobId, Long userId) {
-            if (!jobRepository.deleteByIdAndUserId(jobId, userId)) {
-                throw new NotFoundException();
-            }
-            return Map.of("message", "Job application deleted successfully");
-        }
-        
-        Args:
-            db: Database session
-            job_id: Job application ID
-            user_id: Current user's ID
-        
-        Returns:
-            Success message
-        
-        Raises:
-            NotFoundException: If job not found
-        """
         deleted = self.job_repo.delete(db, job_id, user_id)
         
         if not deleted:
@@ -276,26 +130,7 @@ class JobApplicationService:
         db: Session,
         user_id: int
     ) -> JobApplicationStats:
-        """
-        Get dashboard statistics.
         
-        Spring Boot equivalent:
-        public JobApplicationStats getStatistics(Long userId) {
-            Map<String, Integer> stats = jobRepository.getStatisticsByUserId(userId);
-            return JobApplicationStats.from(stats);
-        }
-        
-        PYTHON NOTES:
-        - Returns statistics grouped by status
-        - Used for dashboard charts/metrics
-        
-        Args:
-            db: Database session
-            user_id: Current user's ID
-        
-        Returns:
-            JobApplicationStats with counts by status
-        """
         stats = self.job_repo.get_statistics(db, user_id)
         
         return JobApplicationStats(
@@ -313,58 +148,6 @@ class JobApplicationService:
         user_id: int,
         limit: int = 5
     ) -> List[JobApplicationResponse]:
-        """
-        Get recent job applications.
         
-        Spring Boot equivalent:
-        public List<JobApplicationResponse> getRecentApplications(Long userId, int limit) {
-            return jobRepository.findRecentByUserId(userId, PageRequest.of(0, limit))
-                .stream()
-                .map(JobApplicationResponse::from)
-                .collect(Collectors.toList());
-        }
-        
-        Args:
-            db: Database session
-            user_id: Current user's ID
-            limit: Number of recent jobs to return
-        
-        Returns:
-            List of recent JobApplicationResponse
-        """
         jobs = self.job_repo.get_recent(db, user_id, limit)
         return [JobApplicationResponse.model_validate(job) for job in jobs]
-
-
-# PYTHON NOTES - Service Layer Pattern:
-"""
-Controller -> Service -> Repository -> Database
-
-Controller:
-- Handles HTTP requests/responses
-- Validates authentication
-- Calls service methods
-
-Service (this file):
-- Business logic and validation
-- Coordinates multiple repositories
-- Handles exceptions
-
-Repository:
-- Direct database operations
-- Simple CRUD operations
-- Query building
-
-This is the same pattern as Spring Boot!
-
-Example flow:
-1. User sends: POST /api/v1/jobs with job data
-2. Controller extracts user_id from JWT token
-3. Controller calls: job_service.create_application(db, job_data, user_id)
-4. Service validates and calls: job_repo.create(db, job_data, user_id)
-5. Repository saves to database and returns entity
-6. Service converts entity to DTO
-7. Controller returns JSON response
-
-Same as Spring Boot MVC pattern!
-"""
